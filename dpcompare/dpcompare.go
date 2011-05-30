@@ -161,16 +161,21 @@ func upload(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user
 
 // it handles "/img".
 func img(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
-  key := datastore.NewKey("Comparison", r.FormValue("id"), 0, nil)
+  key := new(datastore.Key)
+  key = datastore.NewKey("Comparison", r.FormValue("id"), 0, nil)
+
   side := r.FormValue("side")
   comparison := new(Comparison)
-  err := datastore.Get(c, key, comparison)
+
+  var err os.Error
+  err = datastore.Get(c, key, comparison)
   check(err)
 
+  var m image.Image
   if( side == "left"){
-    m, _, err := image.Decode(bytes.NewBuffer(comparison.Left))
+    m, _, err = image.Decode(bytes.NewBuffer(comparison.Left))
   } else {
-    m, _, err := image.Decode(bytes.NewBuffer(comparison.Right))
+    m, _, err = image.Decode(bytes.NewBuffer(comparison.Right))
   }
   check(err)
 
@@ -183,6 +188,7 @@ func show(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.U
   templateContext["username"] = u.Email
 
   key := r.FormValue("id")
+  templateContext["id"] = key
   // render
   renderTemplate(w, "show", templateContext)
 }
