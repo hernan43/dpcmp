@@ -66,7 +66,7 @@ func extractImageFromPost(name string, r *http.Request) []byte {
 
   // We aim for less than 800 pixels in any dimension; if the
   // picture is larger than that, we squeeze it down
-  const max = 800
+  const max = 400
   if b := i.Bounds(); b.Dx() > max || b.Dy() > max {
     // If it's gigantic, it's more efficient to downsample first
     // and then resize; resizing will smooth out the roughness.
@@ -80,7 +80,8 @@ func extractImageFromPost(name string, r *http.Request) []byte {
       i = resize.Resample(i, i.Bounds(), w, h)
       b = i.Bounds()
     }
-    w, h := max/2, max/2
+    //w, h := max/2, max/2
+    w, h := max, max
     if b.Dx() > b.Dy() {
             h = b.Dy() * h / b.Dx()
     } else {
@@ -91,7 +92,7 @@ func extractImageFromPost(name string, r *http.Request) []byte {
 
   // Encode as a new JPEG image.
   buf.Reset()
-  err = jpeg.Encode(buf, i, nil)
+  err = jpeg.Encode(buf, i, &jpeg.Options{Quality: 95})
   check(err)
 
   // return JPEG
@@ -180,16 +181,16 @@ func img(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.Us
   err = datastore.Get(c, key, comparison)
   check(err)
 
-  var m image.Image
+  var m []byte
   if( side == "left"){
-    m, _, err = image.Decode(bytes.NewBuffer(comparison.Left))
+    m = comparison.Left
   } else {
-    m, _, err = image.Decode(bytes.NewBuffer(comparison.Right))
+    m = comparison.Right
   }
   check(err)
 
   w.Header().Set("Content-type", "image/jpeg")
-  jpeg.Encode(w, m, nil)
+  w.Write(m)
 }
 
 func show(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.User) {
