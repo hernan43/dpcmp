@@ -1,8 +1,15 @@
 application: dpcompare
-version: 4
+version: 5
 runtime: go
 api_version: 1
 
 handlers:
+- url: /css
+  static_dir: css
+
+- url: /js
+  static_dir: js
+
 - url: /.*
   script: _go_app
+  

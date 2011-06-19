@@ -12,6 +12,7 @@ import (
   _ "image/png" // import so we can read PNG files
   "io"
   "os"
+  "regexp"
   "resize"
   "crypto/sha1"
   "template"
@@ -40,7 +41,17 @@ func (c *Comparison) key() string {
 func (c Comparison) String() string {
   // for some reason the time value is in nanoseconds I believe
   adjustedDate := int64(c.Date) / 1000000
-  return fmt.Sprintf("<li><a href=\"/show?id=%s\">%s</a> - %s<br/>%s</li>", c.key(), c.key(), c.Submitter, time.SecondsToLocalTime(adjustedDate))
+  return fmt.Sprintf("<li><a href=\"/show/%s\">%s</a> - %s<br/>%s</li>", c.key(), c.key(), c.Submitter, time.SecondsToLocalTime(adjustedDate))
+}
+
+func getKey(w http.ResponseWriter, r *http.Request, lenPath int) (key string, err os.Error) {
+  var keyValidator = regexp.MustCompile("^[a-zA-Z0-9]+$")
+  key = r.URL.Path[lenPath:]
+  if !keyValidator.MatchString(key) {
+		http.NotFound(w, r)
+		err = os.NewError("Invalid Lookup Key")
+	}
+	return
 }
 
 var templates = make(map[string]*template.Template)
@@ -136,7 +147,7 @@ func init() {
   /*setup handlers*/
   http.HandleFunc("/", makeHandler(index))
   http.HandleFunc("/upload", makeHandler(upload))
-  http.HandleFunc("/show", makeHandler(show))
+  http.HandleFunc("/show/", makeHandler(show))
   http.HandleFunc("/img", makeHandler(img))
   http.HandleFunc("/list", makeHandler(list))
 }
@@ -170,7 +181,7 @@ func upload(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user
   check(err)
 
   // Redirect to /edit using the key.
-  http.Redirect(w, r, "/show?id="+key.StringID(), http.StatusFound)
+  http.Redirect(w, r, "/show/"+key.StringID(), http.StatusFound)
 }
 
 // it handles "/img".
@@ -202,11 +213,13 @@ func show(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.U
   templateContext := make(map[string] interface{})
   templateContext["username"] = u.Email
 
-  templateContext["id"] = r.FormValue("id")
+  //templateContext["id"] = r.FormValue("id")
+  lookupKey, _ := getKey(w, r, len("/show/"))
+  templateContext["id"] = lookupKey
 
-  // pull comparison for title  
+  // pull comparison from datastore
   key := new(datastore.Key)
-  key = datastore.NewKey("Comparison", r.FormValue("id"), 0, nil)
+  key = datastore.NewKey("Comparison", lookupKey, 0, nil)
   comparison := new(Comparison)
   var err os.Error
   err = datastore.Get(c, key, comparison)
