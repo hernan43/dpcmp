@@ -20,6 +20,7 @@ import (
 
 // Image is the type used to hold the image in the datastore.
 type Comparison struct {
+  Title string
   Left []byte
   Right []byte
   Submitter string
@@ -37,7 +38,9 @@ func (c *Comparison) key() string {
 }
 
 func (c Comparison) String() string {
-  return fmt.Sprintf("%s", c.key())
+  // for some reason the time value is in nanoseconds I believe
+  adjustedDate := int64(c.Date) / 1000000
+  return fmt.Sprintf("<li><a href=\"/show?id=%s\">%s</a> - %s<br/>%s</li>", c.key(), c.key(), c.Submitter, time.SecondsToLocalTime(adjustedDate))
 }
 
 var templates = make(map[string]*template.Template)
@@ -64,9 +67,9 @@ func extractImageFromPost(name string, r *http.Request) []byte {
   i, _, err := image.Decode(buf)
   check(err)
 
-  // We aim for less than 800 pixels in any dimension; if the
+  // We aim for less than 400 pixels in any dimension; if the
   // picture is larger than that, we squeeze it down
-  const max = 400
+  const max = 800
   if b := i.Bounds(); b.Dx() > max || b.Dy() > max {
     // If it's gigantic, it's more efficient to downsample first
     // and then resize; resizing will smooth out the roughness.
@@ -80,8 +83,8 @@ func extractImageFromPost(name string, r *http.Request) []byte {
       i = resize.Resample(i, i.Bounds(), w, h)
       b = i.Bounds()
     }
-    //w, h := max/2, max/2
-    w, h := max, max
+    w, h := max/2, max/2
+    //w, h := max, max
     if b.Dx() > b.Dy() {
             h = b.Dy() * h / b.Dx()
     } else {
@@ -154,6 +157,7 @@ func upload(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user
   }
 
   comparison := new(Comparison)
+  comparison.Title = r.FormValue("title")
   comparison.Left = extractImageFromPost("left_picture", r)
   comparison.Right = extractImageFromPost("right_picture", r)
   comparison.Submitter = u.Email
@@ -198,8 +202,17 @@ func show(w http.ResponseWriter, r *http.Request, c appengine.Context, u *user.U
   templateContext := make(map[string] interface{})
   templateContext["username"] = u.Email
 
-  key := r.FormValue("id")
-  templateContext["id"] = key
+  templateContext["id"] = r.FormValue("id")
+
+  // pull comparison for title  
+  key := new(datastore.Key)
+  key = datastore.NewKey("Comparison", r.FormValue("id"), 0, nil)
+  comparison := new(Comparison)
+  var err os.Error
+  err = datastore.Get(c, key, comparison)
+  check(err)
+  templateContext["title"] = comparison.Title
+  
   // render
   renderTemplate(w, "show", templateContext)
 }
