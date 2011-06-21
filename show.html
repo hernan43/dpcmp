@@ -19,43 +19,48 @@
   <![endif]-->
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> 
+  <script src="/js/application.js"></script> 
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.8.1/jquery.validate.min.js"></script> 
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.8.1/additional-methods.min.js"></script>  
 </head> 
 <body> 
-  <div id="container"> 
-    <header> 
+
+    <header>
+    <a href="/">dp compare</a>
     </header> 
+
+  <div id="container"> 
  
     <div id="main" role="main"> 
     
-    <h1>{title}</h1>
+    <h2>{title}</h2>
     
-    <p>
+    <div id="image_box"><p>
     <img src="/img?id={id}&side=left"/>
     <img src="/img?id={id}&side=right"/>
-    </p>
+    </p></div>
     
     </div> 
- 
-    <footer> 
-    </footer>
- 
+    
+    <hr/>
      <div id="disqus_thread"></div>
-      
-      <script type="text/javascript">
-          var disqus_developer = 1; // developer mode is on
-          var disqus_shortname = 'dpcompare';
-          (function() {.meta-left}
-              var dsq = document.createElement('script'); 
-              dsq.type = 'text/javascript'; 
-              dsq.async = true;
-              dsq.src = 'http://dpcompare.disqus.com/embed.js';
-              
-              (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-           {.meta-right})();
-      </script>
-      
-      <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+     <script type="text/javascript">
+       var disqus_developer = 1; // developer mode is on
+       var disqus_shortname = 'dpcompare';
+       (function() {.meta-left}
+           var dsq = document.createElement('script'); 
+           dsq.type = 'text/javascript'; 
+           dsq.async = true;
+           dsq.src = 'http://dpcompare.disqus.com/embed.js';
+           
+           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        {.meta-right})();
+     </script> 
+     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+     <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+    <footer> 
+    </footer>  
    
     </div> 
 </body> 

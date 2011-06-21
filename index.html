@@ -13,35 +13,44 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <script src="/js/application.js"></script> 
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.8.1/jquery.validate.min.js"></script> 
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.8.1/additional-methods.min.js"></script>  
 </head> 
 <body> 
+
+  <header>
+  <a href="/">dp compare</a> 
+  </header> 
+    
   <div id="container"> 
-    <header> 
-    <h1>Hello {username}!</h1>
-    </header> 
+
+    <p>
+    Please upload two pictures to compare.
+    </p>
  
     <div id="main" role="main"> 
 
-    <form action="/upload" enctype="multipart/form-data" method="post">
+    <form id="upload_form" action="/upload" enctype="multipart/form-data" method="post">
       <p>
       <label>
       title<br/>
-      <input type="text" name="title"/>
+      <input class="required" type="text" name="title"/>
       </label>
       </p>
 
       <p>
       <label>
       first picture<br/>
-      <input type="file" name="left_picture"/>
+      <input class="required" type="file" name="left_picture"/>
       </label>
       </p>
 
       <p>
       <label>
       second picture<br/>
-      <input type="file" name="right_picture"/>
+      <input class="required" type="file" name="right_picture"/>
       </label>
       </p>
 
